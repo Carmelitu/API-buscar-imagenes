@@ -14,7 +14,7 @@ function validarFormulario(e){
     const terminoBusqueda = document.querySelector('#termino').value;
 
     if (terminoBusqueda === ''){
-        mostrarAlerta('Agrega un término de búsqueda')
+        mostrarAlerta('Agrega un término de búsqueda');
 
         return;
     }
