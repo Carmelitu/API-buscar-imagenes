@@ -2,6 +2,12 @@ import API_KEY from './apikey.js';
 
 const resultado = document.querySelector('#resultado');
 const formulario = document.querySelector('#formulario');
+const paginacionDiv = document.querySelector('#paginacion');
+
+const registrosPorPagina = 40;
+let totalPaginas;
+let iterador;
+
 
 window.onload = () => {
     formulario.addEventListener('submit', validarFormulario);
@@ -40,14 +46,27 @@ function mostrarAlerta(mensaje){
 }
 
 function buscarImagenes(termino){
-    const url = `https://pixabay.com/api/?key=${API_KEY}&q=${termino}&per_page=100`;
+    const url = `https://pixabay.com/api/?key=${API_KEY}&q=${termino}&per_page=${registrosPorPagina}`;
 
     fetch(url)
         .then(respuesta => respuesta.json())
         .then(resultado => {
+            totalPaginas = calcularPaginas(resultado.totalHits);
             mostrarImagenes(resultado.hits);
         })
 
+}
+
+// Generador que va a registrar la cantidad de elementos de acuerdo a las paginas
+function *crearPaginador(total){
+    for (let i = 1; i <= totalPaginas; i++){
+        yield i;
+    }
+}
+
+
+function calcularPaginas(total){
+    return parseInt(Math.ceil(total / registrosPorPagina));
 }
 
 function mostrarImagenes(imagenes){
@@ -78,11 +97,35 @@ function mostrarImagenes(imagenes){
 
                 </div>
             </div>
-        `
-    })
+        `;
+    });
 
+    // Limpia paginacion
+    while(paginacionDiv.firstChild){
+        paginacionDiv.removeChild(paginacionDiv.firstChild);
+    }
+
+    imprimirPaginador();
 }
 
+function imprimirPaginador() {
+    // recorrer el iterador
+    iterador = crearPaginador(totalPaginas);
+    while( true ) {
+        const { value, done } = iterador.next();
 
+        if(done){
+            return;
+        }
+
+        // Crear botón de sig
+        const botonSiguiente = document.createElement('a');
+        botonSiguiente.href = "#";
+        botonSiguiente.dataset.pagina = value;
+        botonSiguiente.textContent = value;
+        botonSiguiente.classList.add('siguiente', 'bg-yellow-400', 'px-4', 'py-1', 'mr-2', 'mx-auto', 'mb-10', 'font-bold', 'uppercase', 'rounded');
+        paginacionDiv.appendChild(botonSiguiente);
+    }
+}
 
 
